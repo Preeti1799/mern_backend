@@ -1,6 +1,7 @@
 import Hotel from "../models/Hotel.js";
 import Room from "../models/Room.js";
 import axios from "axios";
+require('dotenv').config();
 
 export const createHotel = async (req, res, next) => {
   const newHotel = new Hotel(req.body);
@@ -119,20 +120,37 @@ export const getHotelRooms = async (req, res, next) => {
 
 export const getInrRate = async (req, res) => {
   const { date } = req.query;
-  let inrRate = 83; // fallback
+  let inrRate = 83; // Default fallback value
+
   try {
-    const apiUrl = date
+    // Validate date format and default to latest if invalid or unsupported
+    const isValidDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date);
+    const apiUrl = isValidDate
       ? `https://api.exchangerate.host/${date}?base=USD&symbols=INR`
       : `https://api.exchangerate.host/latest?base=USD&symbols=INR`;
+
     console.log("Fetching INR rate from:", apiUrl); // Debug log
     const response = await axios.get(apiUrl, {
       headers: { "Accept-Encoding": "identity" }, // Avoid compression issues
+      timeout: 5000, // Prevent hanging
     });
-    inrRate = response.data.rates?.INR || 83;
+
+    // Safely extract INR rate
+    inrRate = response.data.rates?.INR;
+    if (inrRate === undefined) {
+      throw new Error('INR rate not found in API response');
+    }
     console.log("INR rate fetched:", inrRate);
-    res.status(200).json({ inrRate });
   } catch (error) {
-    console.error("Error fetching INR rate:", error.message, error.stack); // Full error
-    res.status(500).json({ error: "Failed to fetch INR rate", details: error.message });
+    console.error("Error fetching INR rate:", {
+      message: error.message,
+      code: error.code,
+      stack: error.stack, // Full stack trace
+      response: error.response?.data || 'No response data',
+    });
+    // Log warning and use fallback
+    console.warn("Falling back to default INR rate:", inrRate);
   }
+
+  res.status(200).json({ inrRate }); // Always return 200 with fallback
 };
