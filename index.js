@@ -27,7 +27,7 @@ mongoose.connection.on("disconnected", () => {
 app.use(
   cors({
     origin: [
-      "https://ppmernbookings.vercel.app",
+      "https://client-chi-flax.vercel.app",
       "http://localhost:3000",
       "http://localhost:3001",
       "http://localhost:3002",
