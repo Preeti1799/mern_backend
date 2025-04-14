@@ -13,7 +13,7 @@ const app = express();
 
 const connect = async () => {
   try {
-    await mongoose.connect(process.env.MONGO);
+    await mongoose.connect(process.env.MONGO_URL); // ✅ updated from MONGO to MONGO_URL
     console.log("Connected to MongoDB");
   } catch (error) {
     throw error;
@@ -34,7 +34,7 @@ app.use(
       "http://localhost:3003",
       "http://localhost:3004",
     ],
-    credentials: true, // Enable credentials
+    credentials: true,
   })
 );
 
