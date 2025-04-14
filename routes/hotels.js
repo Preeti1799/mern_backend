@@ -17,6 +17,7 @@ const router = express.Router();
 router.post("/", verifyAdmin, createHotel);
 router.put("/:id", verifyAdmin, updateHotel);
 router.delete("/:id", verifyAdmin, deleteHotel);
+router.get("/", getHotels); // Add this line to handle /api/hotels
 router.get("/countByCity", countByCity);
 router.get("/countByType", countByType);
 router.get("/featured", getHotels); // Remove extra /api
