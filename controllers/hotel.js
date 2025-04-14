@@ -1,7 +1,7 @@
 import Hotel from "../models/Hotel.js";
 import Room from "../models/Room.js";
 import axios from "axios";
-require('dotenv').config();
+import "dotenv/config";
 
 export const createHotel = async (req, res, next) => {
   const newHotel = new Hotel(req.body);
@@ -119,15 +119,16 @@ export const getHotelRooms = async (req, res, next) => {
 };
 
 export const getInrRate = async (req, res) => {
-  const { date } = req.query;
-  let inrRate = 83; // Default fallback value
+  const defaultRate = 83; // Constant default value
+  let inrRate = defaultRate; // Initialize with default
 
   try {
+    const { date } = req.query;
     // Validate date format and default to latest if invalid or unsupported
     const isValidDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date);
     const apiUrl = isValidDate
-      ? `https://api.exchangerate.host/${date}?base=USD&symbols=INR`
-      : `https://api.exchangerate.host/latest?base=USD&symbols=INR`;
+      ? `https://api.exchangerate.host/${date}?base=USD&symbols=INR&access_key=${process.env.EXCHANGE_RATE_API_KEY}`
+      : `https://api.exchangerate.host/latest?base=USD&symbols=INR&access_key=${process.env.EXCHANGE_RATE_API_KEY}`;
 
     console.log("Fetching INR rate from:", apiUrl); // Debug log
     const response = await axios.get(apiUrl, {
@@ -148,9 +149,9 @@ export const getInrRate = async (req, res) => {
       stack: error.stack, // Full stack trace
       response: error.response?.data || 'No response data',
     });
-    // Log warning and use fallback
-    console.warn("Falling back to default INR rate:", inrRate);
+    console.warn("Falling back to default INR rate:", defaultRate); // Use constant default
+    inrRate = defaultRate; // Explicitly set fallback
   }
 
-  res.status(200).json({ inrRate }); // Always return 200 with fallback
+  res.status(200).json({ inrRate }); // Return with ensured value
 };

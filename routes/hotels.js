@@ -13,13 +13,14 @@ import { verifyAdmin } from "../utils/verifyToken.js";
 
 const router = express.Router();
 
+// Specific routes before wildcards
 router.post("/", verifyAdmin, createHotel);
 router.put("/:id", verifyAdmin, updateHotel);
 router.delete("/:id", verifyAdmin, deleteHotel);
 router.get("/countByCity", countByCity);
 router.get("/countByType", countByType);
 router.get("/featured", getHotels); // Remove extra /api
-router.get("/:id", getHotel);
-router.get("/inrRate", getInrRate); // Remove extra /api
+router.get("/inrRate", getInrRate); // Specific route
+router.get("/:id", getHotel); // Wildcard route last
 
 export default router;
